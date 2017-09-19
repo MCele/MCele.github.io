@@ -10,53 +10,175 @@
     <body>
 	<script type="text/javascript">
 		var game = new Phaser.Game(1150, 650, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-    var i;
+    var fruits, cerezas, bananas;
+    var john;
+    var puntos = 0;
+    var puntosTxt;
+    var cantMov = 0;
+    var muertos=new Array();
+
 		function preload() {
 			        game.load.image('bosq', 'assets/fondo.jpg');
-			        game.load.spritesheet('john', 'assets/john.png', 107, 205);
+			        game.load.spritesheet('john', 'assets/john2.png', 108, 200);
 		          game.load.spritesheet('dragon', 'assets/dragon5.png', 207, 300);
               game.load.image('cereza', 'assets/cereza.png');
+              game.load.image('banana', 'assets/bananas3.png');
+              game.load.image('cereza', 'assets/anana.png');
+              game.load.image('anana', 'assets/anana.png');
+              //game.load.image('frambuesa', 'assets/cereza2.png');
+              game.load.image('frutilla', 'assets/frutilla.png');
               game.load.image('platf1', 'assets/plataforma1.png');
               game.load.image('platf2', 'assets/plataforma2.png');
               game.load.image('platf3', 'assets/plataforma3.png');
-              game.load.spritesheet('planta_c','assets/planta_carnivora.png',78,152);
-              game.load.spritesheet('abeja','assets/abeja.png',88.4,101);
-		}
 
-		function create() {
-                    game.physics.startSystem(Phaser.Physics.ARCADE);
-                    //  A simple background for our game
-                    // fondo
-                    fondo=game.add.sprite(0, 0, 'bosq');
-                    fondo.scale.setTo(1.2,1.2);
-                    //plataformas
-                    //p1=game.add.sprite(210,450, 'platf1');
-                    //p2=game.add.sprite(440,350, 'platf2');
-                    //p3=game.add.sprite(710,450, 'platf3');
-                    //p4=game.add.sprite(610,200, 'platf3');
-                    //p1.scale.setTo(1.2,1.2);
-                    plataformas = game.add.group();
-                    plataformas.enableBody = true;
-                    var p1 = plataformas.create(210, 450, 'platf1');
-                    var p2 = plataformas.create(440, 350, 'platf2');
-                    var p3 = plataformas.create(710, 450, 'platf3');
-                    var p4 = plataformas.create(610, 200, 'platf3');
-                    p1.body.immovable = true;
-                    p2.body.immovable = true;
-                    p3.body.immovable = true;
-                    p4.body.immovable = true;
+              game.load.spritesheet('planta_c','assets/planta_carnivora.png',70,122);
+              game.load.spritesheet('abeja1','assets/abeja.png',96,101);
+              game.load.spritesheet('abeja2','assets/abeja.png',96,101);
+              game.load.image('coco','assets/coco1.png');
+		  }
 
-                    // frutas
-                    fruta=game.add.sprite(260,422,'cereza');
-                    fruta.scale.setTo(0.2,0.2);
-                    // planta carnivora
-                    planta_c = game.add.sprite(780,380,'planta_c');
-                    planta_c.scale.setTo(0.7,0.7);
-                    game.physics.arcade.enable(planta_c);
-                    planta_c.animations.add('comer', [0, 1, 2, 1, 0], 4, true);
-                    // dragon
-                    /*dragon = game.add.sprite(60, 20, 'dragon');
-                    game.physics.arcade.enable(dragon);
+      function create() {
+            game.physics.startSystem(Phaser.Physics.ARCADE);
+            //game.physics.arcade.checkCollision.down = true;
+            // fondo
+            fondo=game.add.sprite(0, 0, 'bosq');
+            fondo.scale.setTo(1.2,1.2);
+            puntosTxt = game.add.text(16, 16, 'Puntaje: '+ puntos, { fontSize: '32px', fill: '#fff' });
+            //plataformas
+            plataformas = game.add.group();
+            plataformas.enableBody = true;
+            var p1 = plataformas.create(210, 450, 'platf1');
+            var p2 = plataformas.create(840, 150, 'platf1');
+            var p3 = plataformas.create(850, 450, 'platf2');
+            var p4 = plataformas.create(440, 300, 'platf3');
+            var p5 = plataformas.create(10, 270, 'platf1');
+            var piso = plataformas.create(0, 630, 'platf3');
+            p1.body.immovable = true;
+            p2.body.immovable = true;
+            p3.body.immovable = true;
+            p4.body.immovable = true;
+            p5.body.immovable = true;
+            piso.body.immovable  = true;
+            piso.width = 1150;
+            piso.visible = false;
+            game.physics.arcade.enable(plataformas);
+            p1.body.setSize(p1.width-30, p1.height-70,15,2);
+            p2.body.setSize(p2.width-30, p2.height-70,15,2);
+            p3.body.setSize(p1.width-20, p1.height-70,0,5);
+            p5.body.setSize(p5.width-30, p5.height-70,15,2);
+            // frutas
+            coco = game.add.sprite(865,220,'coco');
+            coco1=  game.add.sprite(890,220,'coco');
+            coco.width = 30;
+            coco.height = 30;
+            coco1.width = 33;
+            coco2 = game.add.sprite(910,180,'coco');
+            coco1.height = 33;
+            coco2.width = 36;
+            coco2.height = 36;
+            coco.rotation = Math.PI;
+            coco1.rotation = Math.PI;
+            coco2.rotation = Math.PI/3;
+            //game.physics.arcade.enable(coco1);
+            //coco1.body.gravity.y = 6;
+            //coco1.body.bounce.y = 0.7 + Math.random() * 0.2;
+
+            cerezas= game.add.group();
+            for (var i = 0; i < 2; i++)            {
+            //  Create a star inside of the 'fruits' group
+                var c = cerezas.create(Math.random() * 600+i*70,0, 'cereza');
+                //  Let gravity do its txhing
+                game.physics.arcade.enable(c);
+                c.scale.setTo(0.15,0.15);
+                c.body.gravity.y = 60;
+                //c.angle=90;
+                //  This just gives each star a slightly random bounce value
+                c.body.bounce.y = Math.random() * 0.2;
+                c.body.collideWorldBounds = true;
+            }
+            bananas= game.add.group();
+            for (var j = 0; j < 3; j++){
+            //  crear bananas de forma aleaoria
+                var b = bananas.create(Math.random() * 900+j*70,10, 'banana');
+                //  Let gravity do its txhing
+                game.physics.arcade.enable(b);
+                b.scale.setTo(0.05,0.05);
+                b.body.gravity.y = 60;
+                //b.body.setSize(b.width, b.height,0,40);
+                //  This just gives each star a slightly random bounce value
+                b.body.bounce.y = Math.random() * 0.2;
+                b.body.collideWorldBounds = true;
+                b.body.setSize(b.width+600, b.height+800,100,0);
+            }
+            cocos = game.add.group();
+            for (var k = 0; k < 3; k++){
+            //  crear cocos de forma aleaoria
+                var co = cocos.create(Math.random() * 800+k*50,150, 'coco');
+                //  Let gravity do its txhing
+                game.physics.arcade.enable(co);
+                co.scale.setTo(0.15,0.15);
+                //co.rotation = Math.PI/(k+1);
+                co.body.gravity.y = 60;
+                //  This just gives each star a slightly random bounce value
+                co.body.bounce.y = Math.random() * 0.2;
+                co.body.collideWorldBounds = true;
+            }
+            anana = game.add.group();
+            for (var cont = 0; cont < 2; cont++){
+            //  crear anana de forma aleaoria
+                var a = anana.create(Math.random() * 500+cont*70,0, 'anana');
+                //  se habilta la física del script
+                game.physics.arcade.enable(a);
+                a.scale.setTo(0.1,0.1);
+                //a.rotation = Math.PI/(cont*10);
+                a.body.gravity.y = 60;
+                //  This just gives each star a slightly random bounce value
+                a.body.bounce.y = Math.random() * 0.2;
+                a.body.collideWorldBounds = true;
+                a.body.setSize(a.width+400, a.height+500,0,0);
+            }
+            frutilla = game.add.group();
+            for (var i = 0; i < 2; i++){
+            //  crear frutilla de forma aleaoria
+                var f = frutilla.create(Math.random() * 900+i*80,0, 'frutilla');
+                //  se habilta la física del script
+                game.physics.arcade.enable(f);
+                f.scale.setTo(0.035,0.035);
+                f.rotation = Math.PI/(cont*10);
+                f.body.gravity.y = 60;
+                //  This just gives each star a slightly random bounce value
+                f.body.bounce.y = Math.random() * 0.2;
+                f.body.collideWorldBounds = true;
+            }
+            /*frambuesa = game.add.group();
+            for (var i = 0; i < 2; i++)
+            {
+            //  crear otro tipo de cerezas de forma aleaoria
+                var fra = frambuesa.create(Math.random() * 700+i*80,0, 'frambuesa');
+                //  se habilta la física del script
+                game.physics.arcade.enable(fra);
+                fra.scale.setTo(0.13,0.13);
+                fra.rotation = Math.PI/(cont*10);
+                fra.body.gravity.y = 60;
+                //  This just gives each star a slightly random bounce value
+                fra.body.bounce.y = Math.random() * 0.2;
+                fra.body.collideWorldBounds = true;
+            }*/
+            // planta carnivora
+            planta_c1 = game.add.sprite(270,370,'planta_c');
+            planta_c1.scale.setTo(0.7,0.7);
+            game.physics.arcade.enable(planta_c1);
+            planta_c1.animations.add('comer', [0, 1, 2, 1, 0], 4, true);
+            planta_c1.enableBody=true;
+            planta_c1.body.immovable = true;
+            planta_c2 = game.add.sprite(570,218,'planta_c');
+            planta_c2.scale.setTo(0.7,0.7);
+            game.physics.arcade.enable(planta_c2);
+            planta_c2.animations.add('comer', [0, 1, 2, 1, 0], 4, true);
+            planta_c2.enableBody=true;
+            planta_c2.body.immovable = true;
+            /*dragon = game.add.sprite(60, 20, 'dragon');
+            game.physics.arcade.enable(dragon);
                     dragon.animations.add('volar', [16, 17, 18, 19, 20, 21, 22, 23], 4, true);
                     dragon.animations.add('caminar', [30, 31, 32, 33, 34], 4, true);
                     dragon.animations.add('saltar', [24, 25, 26, 27, 28, 29], 5, true);
@@ -65,52 +187,160 @@
                     dragon.animations.add('atacar', [4, 5, 6, 7, 8, 9, 10], 4, true);
                     dragon.animations.add('estar', [0, 1, 2, 3, 2, 34, 33, 32, 33], 4, false);
                     */
-                    // john
-                    john = game.add.sprite(200, 550, 'john');
-                    john.scale.setTo(0.4,0.4);
-                    game.physics.arcade.enable(john);
-                    john.animations.add('derecha', [0, 1, 2, 3, 4,3,2,1], 7, true);
-                    john.animations.add('izquierda', [8, 9, 10, 11, 12, 13], 4, true);
-                    john.animations.add('saltar', [13,14,15,16], 4,true);
-                    john.body.gravity.y = 80;
-                    john.body.collideWorldBounds = true;
-                    //dragon.animations.add('bajarVuelo', [26, 27, 28, 29], 4, false,true);
-                    //dragon.animations.add('atacar', [4, 5, 6, 7, 8, 9, 10], 4, true);
-                    //dragon.animations.add('estar', [0, 1, 2, 3, 2, 34, 33, 32, 33], 4, false);
-                    jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-                    // abeja
-                    abeja = game.add.sprite(70, 530, 'abeja');
-                    abeja.animations.add('volar',[0,1,2,3,4,5,6],4,true);
-                    abeja.scale.setTo(0.6,0.6);
-                    game.physics.arcade.enable(abeja);
+            // john
+            john = game.add.sprite(200, 550, 'john');
+            john.scale.setTo(0.4,0.4);
+            game.physics.arcade.enable(john);
+            john.animations.add('derecha', [0, 1, 2, 3, 4,3,2,1], 8, true);
+            john.animations.add('izquierda', [8, 9, 10, 11, 12, 13], 8, true);
+            john.animations.add('saltar', [11,12,13,14,15,16,17,18], 4,true);
+            john.animations.add('abajos', [17,18], 4,true);
+            john.body.gravity.y = 250;
+            john.body.collideWorldBounds = true;
+            john.body.bounce.set(0.15);
+            john.enableBody=true;
+            john.body.setSize(john.width , john.height + 100,40,0);
+            //jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+            // abeja
+            /*abejas = game.add.group();
+            for (var j = 0; j < 2; j++){
+            //  crear bananas de forma aleaoria
+                var ab1 = abejas.create(Math.random()*70,10, 'abeja1');
+                ab1.scale.setTo(0.6,0.6);
+                ab1.animations.add('rapido',[0,1,2,3,4,5,6],4,true);
+                ab1.animations.add('volar',[7,8,9,8],6,true);
 
-                    cursors = game.input.keyboard.createCursorKeys();//para habilitar las flechas
+            }*/
+            abeja1 = game.add.sprite(70, 100, 'abeja1');
+            abeja2 = game.add.sprite(70, 230, 'abeja2');
+            abeja1.animations.add('rapido',[0,1,2,3,4,5,6],4,true);
+            abeja1.animations.add('volar',[7,8,9,8],6,true);
+            abeja2.animations.add('rapido',[0,1,2,3,4,5,6],4,true);
+            abeja2.animations.add('volar',[7,8,9,8],6,true);
+            abeja1.scale.setTo(0.6,0.6);
+            abeja2.scale.setTo(0.6,0.6);
+            game.physics.arcade.enable(abeja1);
+            game.physics.arcade.enable(abeja2);
+
+            cursors = game.input.keyboard.createCursorKeys();//para habilitar las flechas
 		}
+    function consumirCereza (john, cereza) {
+        // Removes the fruit from the screen
+        consumirFruta(john, cereza,50);
+    }
+    function consumirBanana (john, banana) {
+        // Removes the fruit from the screen
+        consumirFruta(john, banana,80);
+    }
+    function consumirFrutilla (john, fruit) {
+        // Removes the fruit from the screen
+        consumirFruta(john, fruit,100);
+    }
+    function consumirAnana (john, fruit) {
+        // Removes the fruit from the screen
+        consumirFruta(john, fruit,200);
+    }
+    function consumirFruta (john, fruit,valor) {
+      fruit.kill();
+      puntos+=valor;
+      puntosTxt.setText('Puntaje: ' + puntos);
+      if(cerezas.countLiving()==0 && bananas.countLiving()==0 && cocos.countLiving()==0 && anana.countLiving()==0 && frutilla.countLiving()==0){
+          game.add.text(360, 260, 'Ganaste!!!',{ fontSize: '72px', fill: '#800' });
+      }
+    }
+    function descontar(obj1, obj2) {
+        if(!matarEnemigo(obj1,obj2)){
+            puntos= puntos - 80;
+            puntosTxt.setText('Puntaje: ' + puntos);
+            if(puntos<=0){
+                game.add.text(360, 260, 'Game over',{ fontSize: '72px', fill: '#800' });
+                obj2.kill();
+            }
+        }
+        else{
+          puntos= puntos + 50;
+          puntosTxt.setText('Puntaje: ' + puntos);
+        }
+    }
+    function matarEnemigo(objAbajo,objArriba){
+        if(objArriba.body.touching.down && objAbajo.body.touching.up){
+            objAbajo.body.velocity.y=300;
+            muertos.push(objAbajo);
+            return true;
+        }else{
+            return false;
+        }
+    }
+    function perseguir(j,ab){
+        if((muertos.indexOf(ab)==-1) && game.physics.arcade.distanceBetween(j,ab)<180){
+            ab.animations.play('volar');
+            ab.animations.play('rapido');
+            ab.body.velocity.x = -(ab.body.x-j.body.x)*0.8;
+            ab.body.velocity.y = -(ab.body.y-j.body.y)*0.8;
+        }
+    }
 
 		function update() {
             game.physics.arcade.collide(plataformas,john);
-                    planta_c.body.velocity.x = 0;
-                    planta_c.body.velocity.y = 0;
-                    abeja.body.velocity.x = 1;
-                    abeja.body.velocity.y = 0;
-                    console.log(john);
-                    //console.log(dragon);
-                    console.log(planta_c);
-                    //dragon.animations.play('volar');
-                    abeja.animations.play('volar');
-                    abeja.body.velocity.x = 20;
-                    planta_c.animations.play('comer');
-                    if (cursors.right.isDown){
+            game.physics.arcade.collide(cerezas, plataformas);
+            game.physics.arcade.collide(bananas, plataformas);
+            game.physics.arcade.collide(cocos, plataformas);
+            game.physics.arcade.collide(frutilla, plataformas);
+            //game.physics.arcade.collide(frambuesa, plataformas);
+            game.physics.arcade.collide(anana, plataformas);
+
+            game.physics.arcade.collide(planta_c1,john,descontar,null,this);
+            game.physics.arcade.collide(planta_c2,john,descontar,null,this);
+            game.physics.arcade.collide(abeja1,john,descontar,null,this);
+            game.physics.arcade.collide(abeja2,john,descontar,null,this);
+
+            game.physics.arcade.overlap(john, cerezas, consumirCereza, null, this);
+            game.physics.arcade.overlap(john, bananas, consumirBanana, null, this);
+            game.physics.arcade.overlap(john, cocos, consumirBanana, null, this);
+            //game.physics.arcade.overlap(john, frambuesa, consumirCereza, null, this);
+            game.physics.arcade.overlap(john, anana, consumirAnana, null, this);
+            game.physics.arcade.overlap(john, frutilla, consumirFrutilla, null, this);
+
+            abeja1.animations.play('volar');
+            abeja1.body.velocity.x = 40;
+            if(muertos.indexOf(abeja1)==-1){ //la abeja no está muerta y deja de perseguir a john
+              abeja1.body.velocity.y = 0;
+            }
+            puntos=abeja1.body.velocity.x;
+            puntosTxt.setText('Puntaje: ' + puntos);
+            /*while(Math.mod(cantMov/10)){
+              abeja1.body.velocity.y = Math.random()*50;
+              abeja1.body.velocity.x = Math.random()*50;
+            }*/
+            abeja2.animations.play('volar');
+            abeja2.body.velocity.x = 40;
+            if(muertos.indexOf(abeja2)==-1){ //la abeja no está muerta y deja de perseguir a john
+              abeja2.body.velocity.y = 0;
+            }
+            perseguir(john,abeja1);
+            perseguir(john,abeja2);
+
+            planta_c1.animations.play('comer');
+            planta_c2.animations.play('comer');
+            john.body.velocity.x = 0;
+            if (cursors.right.isDown){
+                  john.animations.play('derecha');
+                  john.body.velocity.x = 120;
+              } else if(cursors.left.isDown){
                         john.animations.play('derecha');
-                        john.body.velocity.x = 40;
-                        john.body.velocity.y = 0;
-                    } else if(cursors.up.isDown){
-                        john.animations.play('saltar');
-                        john.body.velocity.y = -100;
-                    } else if(cursors.left.isDown){
-                        john.body.velocity.x = -40;
-                    }
-                }
+                        john.body.velocity.x = -120;
+                    } else if(cursors.down.isDown){
+                        john.animations.play('abajos');
+                        john.body.velocity.y = 370;
+                    } else {
+                        john.animations.stop();
+                        john.frame=1;
+              }
+              if(cursors.up.isDown && john.body.touching.down){
+                  john.animations.play('saltar');
+                  john.body.velocity.y = -320;
+              }
+          }
 	</script>
     </body>
 </html>
