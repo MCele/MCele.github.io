@@ -14,36 +14,54 @@
     var john;
     var puntos = 0;
     var puntosTxt;
+    var musica;
     var cantMov = 0;
     var muertos=new Array();
-
+    var tiempoTxt;
+    var tiempo = 3000;
+    var terminar=false;
 		function preload() {
 			        game.load.image('bosq', 'assets/fondo.jpg');
-			        game.load.spritesheet('john', 'assets/john2.png', 108, 200);
-		          game.load.spritesheet('dragon', 'assets/dragon5.png', 207, 300);
+              game.load.audio('musica', 'assets/musicafondo.mp3');
+              game.load.audio('ganador', 'assets/ganaste.mp3');
+              game.load.audio('perdedor', 'assets/perdiste.mp3');
+              game.load.audio('mata', 'assets/mataste.mp3');
+              game.load.audio('tocado', 'assets/tocado.mp3');
+              game.load.audio('come', 'assets/come.wav');
+
+			        game.load.spritesheet('john', 'assets/john3.png', 108, 200);
               game.load.image('cereza', 'assets/cereza.png');
               game.load.image('banana', 'assets/bananas3.png');
               game.load.image('cereza', 'assets/anana.png');
               game.load.image('anana', 'assets/anana.png');
-              //game.load.image('frambuesa', 'assets/cereza2.png');
               game.load.image('frutilla', 'assets/frutilla.png');
               game.load.image('platf1', 'assets/plataforma1.png');
               game.load.image('platf2', 'assets/plataforma2.png');
               game.load.image('platf3', 'assets/plataforma3.png');
 
               game.load.spritesheet('planta_c','assets/planta_carnivora.png',70,122);
-              game.load.spritesheet('abeja1','assets/abeja.png',96,101);
-              game.load.spritesheet('abeja2','assets/abeja.png',96,101);
+              game.load.spritesheet('abeja1','assets/abeja3.png',96,101);
+              game.load.spritesheet('abeja2','assets/abeja3.png',96,101);
               game.load.image('coco','assets/coco1.png');
+              game.load.image('logo','assets/logo1.png');
 		  }
 
       function create() {
             game.physics.startSystem(Phaser.Physics.ARCADE);
-            //game.physics.arcade.checkCollision.down = true;
+            musica=game.add.audio('musica');
+            musica.volume = 3;
+            musica.loop = true;
+            musica.play();
+            ganador=game.add.audio('ganador');
+            perdedor=game.add.audio('perdedor');
+            tocado=game.add.audio('tocado');
+            mata=game.add.audio('mata');
+            come=game.add.audio('come');
             // fondo
             fondo=game.add.sprite(0, 0, 'bosq');
             fondo.scale.setTo(1.2,1.2);
             puntosTxt = game.add.text(16, 16, 'Puntaje: '+ puntos, { fontSize: '32px', fill: '#fff' });
+            tiempoTxt = game.add.text(930, 16, 'Tiempo: '+ tiempo, { fontSize: '32px', fill: '#fff' });
             //plataformas
             plataformas = game.add.group();
             plataformas.enableBody = true;
@@ -64,10 +82,12 @@
             game.physics.arcade.enable(plataformas);
             p1.body.setSize(p1.width-30, p1.height-70,15,2);
             p2.body.setSize(p2.width-30, p2.height-70,15,2);
-            p3.body.setSize(p1.width-20, p1.height-70,0,5);
+            p3.body.setSize(p3.width-30, p3.height-60,17,5);
+            p4.body.setSize(p4.width-30, p4.height-60,17,5);
             p5.body.setSize(p5.width-30, p5.height-70,15,2);
-            // frutas
-            coco = game.add.sprite(865,220,'coco');
+
+      // frutas
+            /*coco = game.add.sprite(865,220,'coco');
             coco1=  game.add.sprite(890,220,'coco');
             coco.width = 30;
             coco.height = 30;
@@ -82,6 +102,7 @@
             //game.physics.arcade.enable(coco1);
             //coco1.body.gravity.y = 6;
             //coco1.body.bounce.y = 0.7 + Math.random() * 0.2;
+*/
 
             cerezas= game.add.group();
             for (var i = 0; i < 2; i++)            {
@@ -164,7 +185,7 @@
                 fra.body.bounce.y = Math.random() * 0.2;
                 fra.body.collideWorldBounds = true;
             }*/
-            // planta carnivora
+  // planta carnivora
             planta_c1 = game.add.sprite(270,370,'planta_c');
             planta_c1.scale.setTo(0.7,0.7);
             game.physics.arcade.enable(planta_c1);
@@ -174,7 +195,7 @@
             planta_c2 = game.add.sprite(570,218,'planta_c');
             planta_c2.scale.setTo(0.7,0.7);
             game.physics.arcade.enable(planta_c2);
-            planta_c2.animations.add('comer', [0, 1, 2, 1, 0], 4, true);
+            planta_c2.animations.add('comer', [2, 1, 0, 1, 2], 4, true);
             planta_c2.enableBody=true;
             planta_c2.body.immovable = true;
             /*dragon = game.add.sprite(60, 20, 'dragon');
@@ -187,21 +208,22 @@
                     dragon.animations.add('atacar', [4, 5, 6, 7, 8, 9, 10], 4, true);
                     dragon.animations.add('estar', [0, 1, 2, 3, 2, 34, 33, 32, 33], 4, false);
                     */
-            // john
+    // john
             john = game.add.sprite(200, 550, 'john');
             john.scale.setTo(0.4,0.4);
             game.physics.arcade.enable(john);
             john.animations.add('derecha', [0, 1, 2, 3, 4,3,2,1], 8, true);
-            john.animations.add('izquierda', [8, 9, 10, 11, 12, 13], 8, true);
+            john.animations.add('izquierda', [37, 36, 35, 34, 33, 34,35,36], 8, true);
             john.animations.add('saltar', [11,12,13,14,15,16,17,18], 4,true);
-            john.animations.add('abajos', [17,18], 4,true);
+            john.animations.add('abajoDer', [17,18], 4,true);
+            john.animations.add('abajoIzq', [20,21], 4,true);
             john.body.gravity.y = 250;
             john.body.collideWorldBounds = true;
             john.body.bounce.set(0.15);
             john.enableBody=true;
             john.body.setSize(john.width , john.height + 100,40,0);
             //jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-            // abeja
+      // abeja
             /*abejas = game.add.group();
             for (var j = 0; j < 2; j++){
             //  crear bananas de forma aleaoria
@@ -212,18 +234,45 @@
 
             }*/
             abeja1 = game.add.sprite(70, 100, 'abeja1');
-            abeja2 = game.add.sprite(70, 230, 'abeja2');
-            abeja1.animations.add('rapido',[0,1,2,3,4,5,6],4,true);
-            abeja1.animations.add('volar',[7,8,9,8],6,true);
-            abeja2.animations.add('rapido',[0,1,2,3,4,5,6],4,true);
-            abeja2.animations.add('volar',[7,8,9,8],6,true);
+            abeja2 = game.add.sprite(800, 230, 'abeja1');
+            abeja3 = game.add.sprite(800, 430, 'abeja1');
+            //abeja1.animations.add('rapido',[0,1,2,3,4,5,6],4,true);
+            abeja1.animations.add('volarD',[7,8,9,8],4,true);
+            abeja1.animations.add('atacarD',[0,1,2,3,4,5,6],6,true);
+            abeja1.animations.add('atacarI',[15,16,17,18,19,20,21],6,true);
+            abeja1.animations.add('volarI',[11,12,13,14],4,true);
+
+            abeja2.animations.add('volarD',[7,8,9,8],4,true);
+            abeja2.animations.add('volarI',[11,12,13,14],4,true);
+            abeja2.animations.add('atacarD',[0,1,2,3,4,5,6],6,true);
+            abeja2.animations.add('atacarI',[15,16,17,18,19,20,21],6,true);
+
+            abeja3.animations.add('volarD',[7,8,9,8],4,true);
+            abeja3.animations.add('volarI',[11,12,13,14],4,true);
+            abeja3.animations.add('atacarD',[0,1,2,3,4,5,6],6,true);
+            abeja3.animations.add('atacarI',[15,16,17,18,19,20,21],6,true);
+
             abeja1.scale.setTo(0.6,0.6);
             abeja2.scale.setTo(0.6,0.6);
+            abeja3.scale.setTo(0.6,0.6);
             game.physics.arcade.enable(abeja1);
             game.physics.arcade.enable(abeja2);
+            game.physics.arcade.enable(abeja3);
+
+            abeja1.body.setSize(abeja1.width+12 , abeja1.height,20,0);
+            abeja2.body.setSize(abeja2.width+12 , abeja2.height,20,0);
+            abeja3.body.setSize(abeja3.width+12 , abeja3.height,20,0);
+
+            logo = game.add.sprite(5,0,'logo');
+            logo.scale.setTo(1.4,1.4);
+            var killTween = game.add.tween(logo.scale);
+            killTween.to({x:0,y:0}, 5000, Phaser.Easing.Linear.None,true,0,0);//ultimo parametro=-1 lo repite
+            killTween.start();
 
             cursors = game.input.keyboard.createCursorKeys();//para habilitar las flechas
 		}
+
+
     function consumirCereza (john, cereza) {
         // Removes the fruit from the screen
         consumirFruta(john, cereza,50);
@@ -242,22 +291,40 @@
     }
     function consumirFruta (john, fruit,valor) {
       fruit.kill();
+      come.play();
       puntos+=valor;
       puntosTxt.setText('Puntaje: ' + puntos);
       if(cerezas.countLiving()==0 && bananas.countLiving()==0 && cocos.countLiving()==0 && anana.countLiving()==0 && frutilla.countLiving()==0){
-          game.add.text(360, 260, 'Ganaste!!!',{ fontSize: '72px', fill: '#800' });
+          game.add.text(360, 260, 'Winner!!!',{ fontSize: '72px', fill: '#800' });
+          musica.stop();
+          ganador.play();
+          terminar=true;
       }
     }
+
+    var timeTransp = 0;
+    var transp = false;
+
     function descontar(obj1, obj2) {
         if(!matarEnemigo(obj1,obj2)){
-            puntos= puntos - 80;
-            puntosTxt.setText('Puntaje: ' + puntos);
-            if(puntos<=0){
-                game.add.text(360, 260, 'Game over',{ fontSize: '72px', fill: '#800' });
-                obj2.kill();
+            if(!transp){
+              timeTransp = tiempo;
+              puntos= puntos - 80;
+              obj2.alpha=0.7;
+              tocado.play();
+              transp=true;
+              if(puntos<=0&&!terminar){
+                  puntosTxt.setText('Puntaje: ' + 0);
+                  game.add.text(360, 260, 'Game Over',{ fontSize: '72px', fill: '#800' });
+                  tocado.stop();
+                  perdedor.play();
+                  obj2.kill();
+                  terminar = true;
+                }else{
+                  puntosTxt.setText('Puntaje: ' + puntos);
+                }
             }
-        }
-        else{
+        }else{
           puntos= puntos + 50;
           puntosTxt.setText('Puntaje: ' + puntos);
         }
@@ -265,6 +332,7 @@
     function matarEnemigo(objAbajo,objArriba){
         if(objArriba.body.touching.down && objAbajo.body.touching.up){
             objAbajo.body.velocity.y=300;
+            mata.play();
             muertos.push(objAbajo);
             return true;
         }else{
@@ -273,73 +341,190 @@
     }
     function perseguir(j,ab){
         if((muertos.indexOf(ab)==-1) && game.physics.arcade.distanceBetween(j,ab)<180){
-            ab.animations.play('volar');
-            ab.animations.play('rapido');
             ab.body.velocity.x = -(ab.body.x-j.body.x)*0.8;
             ab.body.velocity.y = -(ab.body.y-j.body.y)*0.8;
+            return true;
+        }
+        else{
+          return false;
         }
     }
+    var der=true;
+    var abe1D=true;
+    var abe2D=false;
+    var abe3D=false;
 
-		function update() {
+    function update() {
+            if(terminar){
+              game.input.keyboard.enabled = false;
+              john.stop();
+            }
             game.physics.arcade.collide(plataformas,john);
             game.physics.arcade.collide(cerezas, plataformas);
             game.physics.arcade.collide(bananas, plataformas);
             game.physics.arcade.collide(cocos, plataformas);
             game.physics.arcade.collide(frutilla, plataformas);
-            //game.physics.arcade.collide(frambuesa, plataformas);
             game.physics.arcade.collide(anana, plataformas);
 
             game.physics.arcade.collide(planta_c1,john,descontar,null,this);
             game.physics.arcade.collide(planta_c2,john,descontar,null,this);
             game.physics.arcade.collide(abeja1,john,descontar,null,this);
             game.physics.arcade.collide(abeja2,john,descontar,null,this);
-
+            game.physics.arcade.collide(abeja3,john,descontar,null,this);
+            if((timeTransp-tiempo)/50>2.5){
+                transp=false;
+                john.alpha=1;
+            }
             game.physics.arcade.overlap(john, cerezas, consumirCereza, null, this);
             game.physics.arcade.overlap(john, bananas, consumirBanana, null, this);
             game.physics.arcade.overlap(john, cocos, consumirBanana, null, this);
-            //game.physics.arcade.overlap(john, frambuesa, consumirCereza, null, this);
             game.physics.arcade.overlap(john, anana, consumirAnana, null, this);
             game.physics.arcade.overlap(john, frutilla, consumirFrutilla, null, this);
 
-            abeja1.animations.play('volar');
-            abeja1.body.velocity.x = 40;
-            if(muertos.indexOf(abeja1)==-1){ //la abeja no está muerta y deja de perseguir a john
-              abeja1.body.velocity.y = 0;
+            abeja3.body.velocity.x = -40;
+            //abeja3.animations.play('volarI');
+            abeja2.body.velocity.x = -40;
+
+            //controlamos si la abeja1 debe perseguir a john
+            if (perseguir(john,abeja1)){
+              //console.log(abeja1);
+              if(john.body.x<abeja1.body.x){
+                abeja1.animations.play('atacarI');
+                abe1D=false;
+              }
+              else{
+                  abe1D=true;
+                  abeja1.animations.play('atacarD');
+              }
             }
-            puntos=abeja1.body.velocity.x;
-            puntosTxt.setText('Puntaje: ' + puntos);
-            /*while(Math.mod(cantMov/10)){
-              abeja1.body.velocity.y = Math.random()*50;
-              abeja1.body.velocity.x = Math.random()*50;
-            }*/
-            abeja2.animations.play('volar');
-            abeja2.body.velocity.x = 40;
-            if(muertos.indexOf(abeja2)==-1){ //la abeja no está muerta y deja de perseguir a john
-              abeja2.body.velocity.y = 0;
+            else{
+              if(muertos.indexOf(abeja1)==-1){ //la abeja no está muerta y deja de perseguir a john
+                abeja1.body.velocity.y = 0;
+                if(abe1D){
+                  abeja1.animations.play('volarD');
+                  abeja1.body.velocity.x = 40;
+                }
+                else{
+                  abeja1.animations.play('volarI');
+                  abeja1.body.velocity.x = -40;
+                }
+              }
+              else{
+                if(abe1D)
+                  abeja1.frame = 8;
+                else
+                      abeja1.frame = 14;
+              }
             }
-            perseguir(john,abeja1);
-            perseguir(john,abeja2);
+
+            if (perseguir(john,abeja2)){
+              //console.log(abeja2);
+              if(john.body.x<abeja2.body.x){
+                abeja2.animations.play('atacarI');
+                abe2D=false;
+              }
+              else{
+                  abe2D=true;
+                  abeja2.animations.play('atacarD');
+              }
+            }
+            else{
+              if(muertos.indexOf(abeja2)==-1){ //la abeja no está muerta y deja de perseguir a john
+                abeja2.body.velocity.y = 0;
+                if(abe2D){
+                  abeja2.animations.play('volarD');
+                  abeja2.body.velocity.x = 40;
+                }
+                else{
+                  abeja2.animations.play('volarI');
+                  abeja2.body.velocity.x = -40;
+                }
+              }
+              else{
+                if(abe2D)
+                  abeja2.frame = 8;
+                else
+                      abeja2.frame = 14;
+              }
+            }
+            if (perseguir(john,abeja3)){
+              //console.log(abeja2);
+              if(john.body.x<abeja3.body.x){
+                abeja3.animations.play('atacarI');
+                abe3D=false;
+              }
+              else{
+                  abe3D=true;
+                  abeja3.animations.play('atacarD');
+              }
+            }
+            else{
+              if(muertos.indexOf(abeja3)==-1){ //la abeja no está muerta y deja de perseguir a john
+                abeja3.body.velocity.y = 0;
+                if(abe3D){
+                  abeja3.animations.play('volarD');
+                  abeja3.body.velocity.x = 40;
+                }
+                else{
+                  abeja3.animations.play('volarI');
+                  abeja3.body.velocity.x = -40;
+                }
+              }
+              else{
+                if(abe3D)
+                  abeja3.frame = 8;
+                else
+                  abeja3.frame = 14;
+              }
+            }
 
             planta_c1.animations.play('comer');
             planta_c2.animations.play('comer');
             john.body.velocity.x = 0;
+
+            if(tiempo>0 ){
+                if (!terminar){
+                  tiempo--;
+                  tiempoTxt.setText('Tiempo: ' + Math.floor(tiempo/50));
+                }
+            }else{
+                perdedor.play();
+                john.kill();
+                game.add.text(360, 260, 'Game Over',{ fontSize: '72px', fill: '#800' });
+                tocado.stop();
+                terminar=true;
+            }
+
             if (cursors.right.isDown){
                   john.animations.play('derecha');
                   john.body.velocity.x = 120;
+                  der=true;
               } else if(cursors.left.isDown){
-                        john.animations.play('derecha');
+                        john.animations.play('izquierda');
                         john.body.velocity.x = -120;
-                    } else if(cursors.down.isDown){
-                        john.animations.play('abajos');
+                        der=false;
+                    } else if(cursors.down.isDown){//20
+                      if (der){
+                        john.animations.play('abajoDer');
+                      }
+                      else{
+                        john.animations.play('abajoIzq');
+                      }
+
                         john.body.velocity.y = 370;
                     } else {
                         john.animations.stop();
-                        john.frame=1;
+                        if (der){john.frame=1;}
+                        else{john.frame=36;}
               }
               if(cursors.up.isDown && john.body.touching.down){
                   john.animations.play('saltar');
                   john.body.velocity.y = -320;
               }
+
+
+              //killTween.onComplete.addOnce(function(){brick.kill();}, this);
+              //killTween.start();
           }
 	</script>
     </body>
