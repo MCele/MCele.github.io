@@ -5,11 +5,13 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript" src="js/phaser.min.js"></script>
-
+        <script type="text/javascript" src="js/Behavior.js"></script>
+        <script type="text/javascript" src="js/Behavior_ArribarAlPunto.js"></script>
+        <script type="text/javascript" src="js/Behavior_FormacionV.js"></script>
     </head>
     <body>
 	<script type="text/javascript">
-		var game = new Phaser.Game(1150, 650, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+    var game = new Phaser.Game(1150, 650, Phaser.AUTO, '', { preload: preload, create: create, update: update });
     var fruits, cerezas, bananas;
     var john;
     var puntos = 0;
@@ -20,8 +22,20 @@
     var tiempoTxt;
     var tiempo = 3000;
     var terminar=false;
-		function preload() {
-			        game.load.image('bosq', 'assets/fondo.jpg');
+    var pajaros=[];
+    var timeTransp = 0;
+    var transp = false;
+    var der=true;
+    var abe1D=true;
+    var abe2D=false;
+    var abe3D=false;
+    var planta1Muere = false;
+    var planta2Muere = false;
+    var tiempoReal;
+    var abajo = -1;
+    
+    function preload() {
+              game.load.image('bosq', 'assets/fondo.jpg');
               game.load.audio('musica', 'assets/musicafondo.mp3');
               game.load.audio('ganador', 'assets/ganaste.mp3');
               game.load.audio('perdedor', 'assets/perdiste.mp3');
@@ -29,7 +43,7 @@
               game.load.audio('tocado', 'assets/tocado.mp3');
               game.load.audio('come', 'assets/come.wav');
 
-			        game.load.spritesheet('john', 'assets/john3.png', 108, 200);
+              game.load.spritesheet('john', 'assets/john3.png', 108, 200);
               game.load.image('cereza', 'assets/cereza.png');
               game.load.image('banana', 'assets/bananas3.png');
               game.load.image('cereza', 'assets/anana.png');
@@ -44,6 +58,8 @@
               game.load.spritesheet('abeja2','assets/abeja3.png',96,101);
               game.load.image('coco','assets/coco1.png');
               game.load.image('logo','assets/logo1.png');
+              game.load.spritesheet('pajaro','assets/pajaro.png',110,100);
+              game.load.spritesheet('p_rojo','assets/pajaro_rojo.png',110,100);
 		  }
 
       function create() {
@@ -56,13 +72,14 @@
             perdedor=game.add.audio('perdedor');
             tocado=game.add.audio('tocado');
             mata=game.add.audio('mata');
+            mata.volume = 0.4;
             come=game.add.audio('come');
-            // fondo
+        // fondo
             fondo=game.add.sprite(0, 0, 'bosq');
             fondo.scale.setTo(1.2,1.2);
             puntosTxt = game.add.text(16, 16, 'Puntaje: '+ puntos, { fontSize: '32px', fill: '#fff' });
             tiempoTxt = game.add.text(930, 16, 'Tiempo: '+ tiempo, { fontSize: '32px', fill: '#fff' });
-            //plataformas
+        //plataformas
             plataformas = game.add.group();
             plataformas.enableBody = true;
             var p1 = plataformas.create(210, 450, 'platf1');
@@ -87,22 +104,6 @@
             p5.body.setSize(p5.width-30, p5.height-70,15,2);
 
       // frutas
-            /*coco = game.add.sprite(865,220,'coco');
-            coco1=  game.add.sprite(890,220,'coco');
-            coco.width = 30;
-            coco.height = 30;
-            coco1.width = 33;
-            coco2 = game.add.sprite(910,180,'coco');
-            coco1.height = 33;
-            coco2.width = 36;
-            coco2.height = 36;
-            coco.rotation = Math.PI;
-            coco1.rotation = Math.PI;
-            coco2.rotation = Math.PI/3;
-            //game.physics.arcade.enable(coco1);
-            //coco1.body.gravity.y = 6;
-            //coco1.body.bounce.y = 0.7 + Math.random() * 0.2;
-*/
 
             cerezas= game.add.group();
             for (var i = 0; i < 2; i++)            {
@@ -113,7 +114,7 @@
                 c.scale.setTo(0.15,0.15);
                 c.body.gravity.y = 60;
                 //c.angle=90;
-                //  This just gives each star a slightly random bounce value
+                // rebota al caer
                 c.body.bounce.y = Math.random() * 0.2;
                 c.body.collideWorldBounds = true;
             }
@@ -126,7 +127,7 @@
                 b.scale.setTo(0.05,0.05);
                 b.body.gravity.y = 60;
                 //b.body.setSize(b.width, b.height,0,40);
-                //  This just gives each star a slightly random bounce value
+                // rebota al caer
                 b.body.bounce.y = Math.random() * 0.2;
                 b.body.collideWorldBounds = true;
                 b.body.setSize(b.width+600, b.height+800,100,0);
@@ -140,7 +141,7 @@
                 co.scale.setTo(0.15,0.15);
                 //co.rotation = Math.PI/(k+1);
                 co.body.gravity.y = 60;
-                //  This just gives each star a slightly random bounce value
+                // rebota al caer
                 co.body.bounce.y = Math.random() * 0.2;
                 co.body.collideWorldBounds = true;
             }
@@ -153,7 +154,7 @@
                 a.scale.setTo(0.1,0.1);
                 //a.rotation = Math.PI/(cont*10);
                 a.body.gravity.y = 60;
-                //  This just gives each star a slightly random bounce value
+                // rebota al caer
                 a.body.bounce.y = Math.random() * 0.2;
                 a.body.collideWorldBounds = true;
                 a.body.setSize(a.width+400, a.height+500,0,0);
@@ -167,24 +168,11 @@
                 f.scale.setTo(0.035,0.035);
                 f.rotation = Math.PI/(cont*10);
                 f.body.gravity.y = 60;
-                //  This just gives each star a slightly random bounce value
+                // rebota al caer
                 f.body.bounce.y = Math.random() * 0.2;
                 f.body.collideWorldBounds = true;
             }
-            /*frambuesa = game.add.group();
-            for (var i = 0; i < 2; i++)
-            {
-            //  crear otro tipo de cerezas de forma aleaoria
-                var fra = frambuesa.create(Math.random() * 700+i*80,0, 'frambuesa');
-                //  se habilta la física del script
-                game.physics.arcade.enable(fra);
-                fra.scale.setTo(0.13,0.13);
-                fra.rotation = Math.PI/(cont*10);
-                fra.body.gravity.y = 60;
-                //  This just gives each star a slightly random bounce value
-                fra.body.bounce.y = Math.random() * 0.2;
-                fra.body.collideWorldBounds = true;
-            }*/
+
   // planta carnivora
             planta_c1 = game.add.sprite(270,370,'planta_c');
             planta_c1.scale.setTo(0.7,0.7);
@@ -198,16 +186,6 @@
             planta_c2.animations.add('comer', [2, 1, 0, 1, 2], 4, true);
             planta_c2.enableBody=true;
             planta_c2.body.immovable = true;
-            /*dragon = game.add.sprite(60, 20, 'dragon');
-            game.physics.arcade.enable(dragon);
-                    dragon.animations.add('volar', [16, 17, 18, 19, 20, 21, 22, 23], 4, true);
-                    dragon.animations.add('caminar', [30, 31, 32, 33, 34], 4, true);
-                    dragon.animations.add('saltar', [24, 25, 26, 27, 28, 29], 5, true);
-                    dragon.animations.add('saltoVuelo', [ 1, 2, 3, 5, 25, 5], 4, false,true);
-                    dragon.animations.add('bajarVuelo', [26, 27, 28, 29], 4, false,true);
-                    dragon.animations.add('atacar', [4, 5, 6, 7, 8, 9, 10], 4, true);
-                    dragon.animations.add('estar', [0, 1, 2, 3, 2, 34, 33, 32, 33], 4, false);
-                    */
     // john
             john = game.add.sprite(200, 550, 'john');
             john.scale.setTo(0.4,0.4);
@@ -223,20 +201,11 @@
             john.enableBody=true;
             john.body.setSize(john.width , john.height + 100,40,0);
             //jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-      // abeja
-            /*abejas = game.add.group();
-            for (var j = 0; j < 2; j++){
-            //  crear bananas de forma aleaoria
-                var ab1 = abejas.create(Math.random()*70,10, 'abeja1');
-                ab1.scale.setTo(0.6,0.6);
-                ab1.animations.add('rapido',[0,1,2,3,4,5,6],4,true);
-                ab1.animations.add('volar',[7,8,9,8],6,true);
-
-            }*/
+            
+        //Abejas
             abeja1 = game.add.sprite(70, 100, 'abeja1');
             abeja2 = game.add.sprite(800, 230, 'abeja1');
             abeja3 = game.add.sprite(800, 430, 'abeja1');
-            //abeja1.animations.add('rapido',[0,1,2,3,4,5,6],4,true);
             abeja1.animations.add('volarD',[7,8,9,8],4,true);
             abeja1.animations.add('atacarD',[0,1,2,3,4,5,6],6,true);
             abeja1.animations.add('atacarI',[15,16,17,18,19,20,21],6,true);
@@ -262,15 +231,28 @@
             abeja1.body.setSize(abeja1.width+12 , abeja1.height,20,0);
             abeja2.body.setSize(abeja2.width+12 , abeja2.height,20,0);
             abeja3.body.setSize(abeja3.width+12 , abeja3.height,20,0);
+// Pájaros
+            lider_rojo = game.add.sprite(800,120,'p_rojo');
+            lider_rojo.scale.setTo(0.5,0.5);
 
+
+            game.physics.arcade.enable(lider_rojo);
+            lider_rojo.animations.add('volar', [0, 1, 2, 3, 4, 5, 6, 7], 6, true);
+            lider_rojo.enableBody=true;
+            for(var p=0; p<4;p++){
+                pajaro=new Behavior_FormacionV(game, 950, p*200, 'pajaro', 3, lider_rojo,p);
+                //parametros game, posición x, posición y, clave del spritesheet,sprit del lider, id del pájaro
+                pajaros.push(pajaro);
+            }
+            //console.log(grupoPajaros);
             logo = game.add.sprite(5,0,'logo');
             logo.scale.setTo(1.4,1.4);
             var killTween = game.add.tween(logo.scale);
             killTween.to({x:0,y:0}, 5000, Phaser.Easing.Linear.None,true,0,0);//ultimo parametro=-1 lo repite
             killTween.start();
 
-            cursors = game.input.keyboard.createCursorKeys();//para habilitar las flechas
-		}
+            cursors = game.input.keyboard.createCursorKeys();//habilitar las flechas del teclado
+    }
 
 
     function consumirCereza (john, cereza) {
@@ -289,6 +271,7 @@
         // Removes the fruit from the screen
         consumirFruta(john, fruit,200);
     }
+    
     function consumirFruta (john, fruit,valor) {
       fruit.kill();
       come.play();
@@ -298,15 +281,14 @@
           game.add.text(360, 260, 'Winner!!!',{ fontSize: '72px', fill: '#800' });
           musica.stop();
           ganador.play();
+          puntosTxt.setText('Puntaje: ' + puntos);
           terminar=true;
       }
     }
-
-    var timeTransp = 0;
-    var transp = false;
-
+    
     function descontar(obj1, obj2) {
-        if(!matarEnemigo(obj1,obj2)){
+      if (muertos.indexOf(obj1)==-1){ //si el enemigo no murió
+        if(!matarEnemigo(obj1,obj2)){ //obj1 --> abajo y obj2 --> arriba
             if(!transp){
               timeTransp = tiempo;
               puntos= puntos - 80;
@@ -328,8 +310,11 @@
           puntos= puntos + 50;
           puntosTxt.setText('Puntaje: ' + puntos);
         }
+      }
     }
-    function matarEnemigo(objAbajo,objArriba){
+    
+    function matarEnemigo(objAbajo,objArriba)
+    {    //  John mata al anemigo saltando encima
         if(objArriba.body.touching.down && objAbajo.body.touching.up){
             objAbajo.body.velocity.y=300;
             mata.play();
@@ -339,7 +324,8 @@
             return false;
         }
     }
-    function perseguir(j,ab){
+    function perseguir(j,ab)
+    { //las abejas persiguen a John si está en su radio
         if((muertos.indexOf(ab)==-1) && game.physics.arcade.distanceBetween(j,ab)<180){
             ab.body.velocity.x = -(ab.body.x-j.body.x)*0.8;
             ab.body.velocity.y = -(ab.body.y-j.body.y)*0.8;
@@ -349,16 +335,16 @@
           return false;
         }
     }
-    var der=true;
-    var abe1D=true;
-    var abe2D=false;
-    var abe3D=false;
-
+    
     function update() {
             if(terminar){
               game.input.keyboard.enabled = false;
               john.stop();
             }
+            for(i = 0; i < pajaros.length; i++){
+                pajaros[i].update();
+            }
+            game.physics.arcade.collide(john,lider_rojo);
             game.physics.arcade.collide(plataformas,john);
             game.physics.arcade.collide(cerezas, plataformas);
             game.physics.arcade.collide(bananas, plataformas);
@@ -371,7 +357,8 @@
             game.physics.arcade.collide(abeja1,john,descontar,null,this);
             game.physics.arcade.collide(abeja2,john,descontar,null,this);
             game.physics.arcade.collide(abeja3,john,descontar,null,this);
-            if((timeTransp-tiempo)/50>2.5){
+            if((timeTransp-tiempo)/50>2.5)
+            { //luego de que lo tocan puede ser "transparente" por menos de 3 segundos
                 transp=false;
                 john.alpha=1;
             }
@@ -382,12 +369,10 @@
             game.physics.arcade.overlap(john, frutilla, consumirFrutilla, null, this);
 
             abeja3.body.velocity.x = -40;
-            //abeja3.animations.play('volarI');
             abeja2.body.velocity.x = -40;
 
             //controlamos si la abeja1 debe perseguir a john
             if (perseguir(john,abeja1)){
-              //console.log(abeja1);
               if(john.body.x<abeja1.body.x){
                 abeja1.animations.play('atacarI');
                 abe1D=false;
@@ -398,7 +383,8 @@
               }
             }
             else{
-              if(muertos.indexOf(abeja1)==-1){ //la abeja no está muerta y deja de perseguir a john
+              if(muertos.indexOf(abeja1)==-1)
+              { //la abeja no está muerta y deja de perseguir a john por estar fuera de su radio
                 abeja1.body.velocity.y = 0;
                 if(abe1D){
                   abeja1.animations.play('volarD');
@@ -416,7 +402,8 @@
                       abeja1.frame = 14;
               }
             }
-
+            
+            //controlamos si la abeja2 debe perseguir a john
             if (perseguir(john,abeja2)){
               //console.log(abeja2);
               if(john.body.x<abeja2.body.x){
@@ -429,7 +416,8 @@
               }
             }
             else{
-              if(muertos.indexOf(abeja2)==-1){ //la abeja no está muerta y deja de perseguir a john
+              if(muertos.indexOf(abeja2)==-1)
+              { //la abeja no está muerta y deja de perseguir a john por estar fuera de su radio
                 abeja2.body.velocity.y = 0;
                 if(abe2D){
                   abeja2.animations.play('volarD');
@@ -447,8 +435,10 @@
                       abeja2.frame = 14;
               }
             }
+            
+            //controlamos si la abeja3 debe perseguir a john
             if (perseguir(john,abeja3)){
-              //console.log(abeja2);
+              //console.log(abeja3);
               if(john.body.x<abeja3.body.x){
                 abeja3.animations.play('atacarI');
                 abe3D=false;
@@ -459,7 +449,8 @@
               }
             }
             else{
-              if(muertos.indexOf(abeja3)==-1){ //la abeja no está muerta y deja de perseguir a john
+              if(muertos.indexOf(abeja3)==-1)
+              { //la abeja no está muerta y deja de perseguir a john por estar fuera de su radio
                 abeja3.body.velocity.y = 0;
                 if(abe3D){
                   abeja3.animations.play('volarD');
@@ -477,15 +468,36 @@
                   abeja3.frame = 14;
               }
             }
+            if (muertos.indexOf(planta_c1)==-1){ //planta esta viva
+              planta_c1.animations.play('comer');
+            }
+              else{
+                if (!planta1Muere){
+                  planta1Muere=true;
+                  planta_c1.frame = 1;
+                  planta_c1.rotation = Math.PI/3;
+                  planta_c1.body.x = planta_c1.body.x+40;
+                }
+              }
+              if (muertos.indexOf(planta_c2)==-1){ //planta esta viva
+                planta_c2.animations.play('comer');
+              }
+                else{
+                  if (!planta2Muere){
+                    planta2Muere=true;
+                    planta_c2.frame = 1;
+                    planta_c2.rotation = Math.PI/3;
+                    planta_c2.body.x = planta_c2.body.x+40;
+                  }
+                }
 
-            planta_c1.animations.play('comer');
-            planta_c2.animations.play('comer');
             john.body.velocity.x = 0;
 
             if(tiempo>0 ){
                 if (!terminar){
                   tiempo--;
-                  tiempoTxt.setText('Tiempo: ' + Math.floor(tiempo/50));
+                  tiempoReal = Math.floor(tiempo/50);
+                  tiempoTxt.setText('Tiempo: ' + tiempoReal);
                 }
             }else{
                 perdedor.play();
@@ -494,6 +506,21 @@
                 tocado.stop();
                 terminar=true;
             }
+            
+            lider_rojo.body.velocity.x = -20;
+            // Aproxim. cada 6 segundos el pájaro lider cambia su dirección, los demás pájaros lo siguen
+            if (tiempo%300===0)
+            {
+              abajo = abajo * (-1);
+              lider_rojo.body.velocity.y = 25*abajo;
+              lider_rojo.body.angularVelocity = 20;
+              lider_rojo.angle = -10*abajo;
+            }
+            else{
+              lider_rojo.body.angularVelocity = 0;
+            }
+
+            lider_rojo.animations.play('volar');
 
             if (cursors.right.isDown){
                   john.animations.play('derecha');
@@ -503,7 +530,7 @@
                         john.animations.play('izquierda');
                         john.body.velocity.x = -120;
                         der=false;
-                    } else if(cursors.down.isDown){//20
+                    } else if(cursors.down.isDown){
                       if (der){
                         john.animations.play('abajoDer');
                       }
@@ -522,9 +549,6 @@
                   john.body.velocity.y = -320;
               }
 
-
-              //killTween.onComplete.addOnce(function(){brick.kill();}, this);
-              //killTween.start();
           }
 	</script>
     </body>
